@@ -1,0 +1,64 @@
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/manrope/400.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: #e5ecea;
+  --bg-surface: #f2f6f5;
+  --bg-elevated: #ffffff;
+  --bg-muted: #cfd9d6;
+  --text-primary: #0f1f1b;
+  --text-secondary: rgba(15, 31, 27, 0.68);
+  --text-faint: rgba(15, 31, 27, 0.45);
+  --accent: #07775f;
+  --accent-bright: #2fd6b4;
+  --accent-deep: #055c49;
+  --border: rgba(14, 26, 24, 0.14);
+  --border-strong: rgba(14, 26, 24, 0.22);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-bright);
+  color: var(--text-primary);
+}
+
+.glow {
+  pointer-events: none;
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  background: radial-gradient(circle, var(--accent-bright), rgba(0, 0, 0, 0) 70%);
+  opacity: 0.35;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
