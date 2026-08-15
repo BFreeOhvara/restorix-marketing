@@ -12,33 +12,27 @@ export default function Outcomes() {
   return (
     <section id="outcomes" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-shell px-6">
-        <SectionHeading
-          eyebrow="Outcomes"
-          title="The numbers a center director actually cares about."
-          footnote="Reported as real client data — Restorix is early"
-        />
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionHeading eyebrow="Outcomes" title="The numbers a center director actually cares about." />
+          <Reveal direction="left" delay={0.1}>
+            <div className="flex items-center gap-3 rounded-full border border-line bg-surface px-5 py-2.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
+              <span className="font-sans text-sm text-fg-secondary">Restorix is early — real client data, not averages</span>
+            </div>
+          </Reveal>
+        </div>
 
-        <Reveal delay={0.1}>
-          <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-line bg-surface px-5 py-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent-bright" />
-            <span className="font-sans text-sm text-fg-secondary">
-              Restorix is a new system — these are the metrics we track from day one with every
-              client, not industry averages.
-            </span>
-          </div>
-        </Reveal>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {METRICS.map((m, i) => (
-            <Reveal key={m.label} delay={i * 0.06}>
-              <div className="h-full rounded-card border border-line bg-surface p-7">
-                <span className="font-display text-4xl font-medium text-fg-faint">—</span>
+        <Reveal delay={0.15} className="mt-14">
+          <div className="grid divide-y divide-line rounded-card border border-line bg-surface sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+            {METRICS.map((m) => (
+              <div key={m.label} className="p-8">
+                <span className="font-display text-5xl font-medium text-fg-faint">—</span>
                 <p className="mt-4 font-sans text-sm font-medium text-fg-primary">{m.label}</p>
                 <p className="eyebrow mt-2 !text-fg-faint">{m.note}</p>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   )

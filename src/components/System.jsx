@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import clsx from 'clsx'
 import { PhoneIncoming, MessageSquareText, Stethoscope, ClipboardCheck, HeartHandshake } from 'lucide-react'
 import Reveal from './ui/Reveal'
 import SectionHeading from './ui/SectionHeading'
@@ -36,68 +36,59 @@ const CAPABILITIES = [
   },
 ]
 
-function CoreEmblem() {
-  return (
-    <div className="relative mx-auto flex h-56 w-56 items-center justify-center md:h-64 md:w-64">
-      <div className="glow h-full w-full opacity-40" />
-      <motion.div
-        className="absolute inset-0 rounded-full border border-dashed border-accent/30"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-      />
-      <div className="absolute inset-6 rounded-full border border-line bg-surface" />
-      <div className="relative flex flex-col items-center">
-        <span className="font-display text-lg font-semibold tracking-tight text-fg-primary">Restorix</span>
-        <span className="eyebrow mt-0.5">core</span>
-      </div>
-      {CAPABILITIES.map((c, i) => {
-        const angle = (i / CAPABILITIES.length) * 2 * Math.PI - Math.PI / 2
-        const r = 44
-        const x = 50 + r * Math.cos(angle)
-        const y = 50 + r * Math.sin(angle)
-        return (
-          <span
-            key={c.n}
-            className="eyebrow absolute flex h-7 w-7 items-center justify-center rounded-full border border-accent/40 bg-base !text-accent-deep"
-            style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}
-          >
-            {c.n}
-          </span>
-        )
-      })}
-    </div>
-  )
-}
-
 export default function System() {
   return (
     <section id="system" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-shell px-6">
-        <SectionHeading
-          eyebrow="The Restorix System"
-          title="Not a chatbot. A connected revenue layer."
-          body="Five capabilities, architected as one system around your center. Each part hands off to the next — capture to qualify, recover to book, book to nurture — so no inquiry falls through the gaps between tools."
-        />
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionHeading
+            eyebrow="The Restorix System"
+            title="Not a chatbot. A connected revenue layer."
+            body="Five capabilities, architected as one system around your center. Each part hands off to the next — capture to qualify, recover to book, book to nurture — so no inquiry falls through the gaps between tools."
+          />
+          <Reveal direction="left" delay={0.15}>
+            <span className="hidden shrink-0 rounded-full border border-accent/30 bg-surface px-5 py-2 font-display text-sm font-medium tracking-tight text-accent-deep md:inline-block">
+              Restorix<span className="text-accent">CORE</span>
+            </span>
+          </Reveal>
+        </div>
 
-        <Reveal className="mt-16" delay={0.1}>
-          <CoreEmblem />
-        </Reveal>
-
-        <div className="mt-16 grid gap-px overflow-hidden rounded-card border border-line bg-line md:grid-cols-2">
-          {CAPABILITIES.map((c, i) => (
-            <Reveal key={c.n} delay={i * 0.06}>
-              <div className="flex h-full gap-5 bg-surface p-8">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-base text-accent">
-                  <c.icon size={18} strokeWidth={1.75} />
-                </div>
-                <div>
-                  <span className="eyebrow">{c.n}</span>
-                  <h3 className="mt-1 font-display text-lg font-medium text-fg-primary">{c.title}</h3>
-                  <p className="mt-2 font-sans text-sm leading-relaxed text-fg-secondary">{c.body}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+        <div className="relative mt-16">
+          <div className="absolute left-6 top-4 bottom-4 hidden w-px bg-line md:block" />
+          <div className="space-y-8">
+            {CAPABILITIES.map((c, i) => {
+              const reversed = i % 2 === 1
+              return (
+                <Reveal key={c.n} direction={reversed ? 'right' : 'left'} delay={i * 0.05}>
+                  <div className="grid gap-5 md:grid-cols-[3rem_1fr] md:gap-8">
+                    <div className="relative hidden md:block">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-elevated text-accent">
+                        <c.icon size={18} strokeWidth={1.75} />
+                      </span>
+                    </div>
+                    <div
+                      className={clsx(
+                        'rounded-card border border-line bg-surface p-7 md:max-w-2xl',
+                        reversed && 'md:ml-auto'
+                      )}
+                    >
+                      <div className="flex items-center gap-3 md:hidden">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-elevated text-accent">
+                          <c.icon size={16} strokeWidth={1.75} />
+                        </span>
+                        <span className="eyebrow">{c.n}</span>
+                      </div>
+                      <span className="eyebrow hidden md:inline">{c.n}</span>
+                      <h3 className="mt-2 font-display text-lg font-medium text-fg-primary md:mt-1">
+                        {c.title}
+                      </h3>
+                      <p className="mt-2 font-sans text-sm leading-relaxed text-fg-secondary">{c.body}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              )
+            })}
+          </div>
         </div>
       </div>
     </section>

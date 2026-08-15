@@ -35,36 +35,37 @@ export default function WhoItsFor() {
   return (
     <section id="who" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-shell px-6">
-        <SectionHeading
-          eyebrow="Who It's For"
-          title="Built for serious behavioral health providers."
-          body="Restorix is purpose-built for centers where the admissions journey is urgent, high-consideration, and easy to lose to a slow reply."
-        />
+        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+          <SectionHeading
+            eyebrow="Who It's For"
+            title="Built for serious behavioral health providers."
+            body="Restorix is purpose-built for centers where the admissions journey is urgent, high-consideration, and easy to lose to a slow reply."
+          />
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {SEGMENTS.map((s, i) => (
-            <Reveal key={s.n} delay={i * 0.06}>
-              <div className="h-full rounded-card border border-line bg-surface p-7 transition-colors duration-300 hover:border-accent/40">
-                <span className="eyebrow">{s.n}</span>
-                <h3 className="mt-3 font-display text-lg font-medium leading-snug text-fg-primary">{s.title}</h3>
-                <p className="mt-3 font-sans text-sm leading-relaxed text-fg-secondary">{s.body}</p>
+          <div className="border-t border-line">
+            {SEGMENTS.map((s, i) => (
+              <Reveal key={s.n} direction="right" delay={i * 0.05}>
+                <div className="grid grid-cols-[3.5rem_1fr] gap-6 border-b border-line py-7 md:grid-cols-[4.5rem_1fr]">
+                  <span className="font-display text-3xl font-medium text-fg-faint md:text-4xl">{s.n}</span>
+                  <div>
+                    <h3 className="font-display text-lg font-medium text-fg-primary md:text-xl">{s.title}</h3>
+                    <p className="mt-2 max-w-xl font-sans text-sm leading-relaxed text-fg-secondary">{s.body}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+
+            <Reveal direction="right" delay={SEGMENTS.length * 0.05}>
+              <div className="flex flex-col items-start gap-4 py-8 sm:flex-row sm:items-center sm:justify-between">
+                <p className="font-display text-lg font-medium text-fg-primary">
+                  Adjacent specialty? If your patients call before they commit, Restorix fits.
+                </p>
+                <PrimaryButton className="shrink-0">
+                  Check your fit <ArrowRight size={15} />
+                </PrimaryButton>
               </div>
             </Reveal>
-          ))}
-
-          <Reveal delay={SEGMENTS.length * 0.06}>
-            <div className="flex h-full flex-col justify-between rounded-card border border-dashed border-accent/40 bg-base p-7">
-              <div>
-                <span className="eyebrow">Adjacent specialty?</span>
-                <p className="mt-3 font-display text-lg font-medium leading-snug text-fg-primary">
-                  If your patients call before they commit, Restorix fits.
-                </p>
-              </div>
-              <PrimaryButton className="mt-6 self-start">
-                Check your fit <ArrowRight size={15} />
-              </PrimaryButton>
-            </div>
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>

@@ -19,9 +19,9 @@
   --text-primary: #0f1f1b;
   --text-secondary: rgba(15, 31, 27, 0.68);
   --text-faint: rgba(15, 31, 27, 0.45);
-  --accent: #07775f;
-  --accent-bright: #2fd6b4;
-  --accent-deep: #055c49;
+  --accent: #3a63d6;
+  --accent-bright: #7c9eff;
+  --accent-deep: #24469e;
   --border: rgba(14, 26, 24, 0.14);
   --border-strong: rgba(14, 26, 24, 0.22);
 }

@@ -36,31 +36,24 @@ export default function Process() {
   return (
     <section id="process" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-shell px-6">
-        <SectionHeading
-          eyebrow="How It Works"
-          title="A four-step install, not a software handoff."
-        />
+        <SectionHeading eyebrow="How It Works" title="A four-step install, not a software handoff." />
 
         <div className="relative mt-16">
-          <div className="absolute left-6 top-2 bottom-2 hidden w-px bg-line md:block" />
-          <div className="space-y-10 md:space-y-16">
+          <div className="absolute left-0 right-0 top-6 hidden h-px bg-line lg:block" />
+          <div className="grid gap-8 lg:grid-cols-4 lg:gap-6">
             {STEPS.map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.08}>
-                <div className="grid gap-6 md:grid-cols-[3rem_1fr] md:gap-10">
-                  <div className="relative hidden md:block">
-                    <div className="sticky top-32 flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-base font-mono text-sm text-accent-deep">
+              <Reveal key={s.n} direction="up" scale delay={i * 0.1}>
+                <div className="flex flex-col">
+                  <div className="relative flex items-center gap-3 lg:block">
+                    <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-base font-mono text-sm text-accent-deep">
                       {s.n}
-                    </div>
+                    </span>
+                    <h3 className="font-display text-xl font-medium text-fg-primary lg:mt-4">{s.title}</h3>
                   </div>
-                  <div className="rounded-card border border-line bg-surface p-8">
-                    <span className="eyebrow md:hidden">{s.n}</span>
-                    <h3 className="mt-2 font-display text-2xl font-medium text-fg-primary md:mt-0">
-                      {s.title} — <span className="text-fg-secondary">{s.lead}</span>
-                    </h3>
-                    <p className="mt-4 max-w-2xl font-sans text-sm leading-relaxed text-fg-secondary md:text-base">
-                      {s.body}
-                    </p>
-                    <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
+                  <p className="mt-3 font-sans text-sm text-fg-secondary lg:min-h-[2.5rem]">{s.lead}</p>
+                  <div className="mt-4 flex-1 rounded-card border border-line bg-surface p-5">
+                    <p className="font-sans text-sm leading-relaxed text-fg-secondary">{s.body}</p>
+                    <div className="mt-5 flex flex-wrap gap-x-3 gap-y-2 border-t border-line pt-4">
                       {s.tags.map((t) => (
                         <span key={t} className="eyebrow !text-fg-faint">
                           {t}

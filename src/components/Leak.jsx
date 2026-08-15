@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import Reveal from './ui/Reveal'
 import SectionHeading from './ui/SectionHeading'
 
@@ -43,20 +44,41 @@ export default function Leak() {
           footnote="Based on published behavioral-health intake benchmarks"
         />
 
-        <div className="mt-14 grid gap-6 md:grid-cols-2">
-          {STAGES.map((s, i) => (
-            <Reveal key={s.n} delay={i * 0.08}>
-              <div className="group h-full rounded-card border border-line bg-surface p-8 transition-colors duration-300 hover:border-accent/40">
-                <span className="eyebrow">{s.n}</span>
-                <h3 className="mt-3 font-display text-xl font-medium text-fg-primary">{s.title}</h3>
-                <p className="mt-3 font-sans text-sm leading-relaxed text-fg-secondary">{s.body}</p>
-                <div className="mt-8 flex items-baseline gap-3 border-t border-line pt-6">
-                  <span className="font-display text-4xl font-medium text-accent">{s.stat}</span>
+        <div className="mt-16 divide-y divide-line border-y border-line">
+          {STAGES.map((s, i) => {
+            const reversed = i % 2 === 1
+            return (
+              <Reveal key={s.n} direction={reversed ? 'left' : 'right'} delay={i * 0.05}>
+                <div
+                  className={clsx(
+                    'grid items-center gap-6 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16',
+                    reversed && 'md:[&>*:first-child]:order-2'
+                  )}
+                >
+                  <div>
+                    <span className="eyebrow">{s.n} / The Leak</span>
+                    <h3 className="mt-3 font-display text-2xl font-medium text-fg-primary">{s.title}</h3>
+                    <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-fg-secondary md:text-base">
+                      {s.body}
+                    </p>
+                  </div>
+                  <div className={clsx('flex flex-col', reversed ? 'md:items-start' : 'md:items-end')}>
+                    <span className="font-display text-5xl font-medium leading-none text-accent md:text-6xl">
+                      {s.stat}
+                    </span>
+                    <p
+                      className={clsx(
+                        'eyebrow mt-3 max-w-[14rem] !text-fg-faint',
+                        reversed ? 'md:text-left' : 'md:text-right'
+                      )}
+                    >
+                      {s.caption}
+                    </p>
+                  </div>
                 </div>
-                <p className="eyebrow mt-2 !text-fg-faint">{s.caption}</p>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            )
+          })}
         </div>
       </div>
     </section>
