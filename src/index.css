@@ -55,126 +55,62 @@ body {
   opacity: 0.35;
 }
 
-/* Prompt 479 — page-wide ambient motion, Brayden's own idea ("come up
-   with the idea"): extend this site's existing static .glow blob motif
-   into slow, continuous, very subtle drift. Pure CSS transform/opacity
-   keyframes only (no canvas, no JS loop) — cheap regardless of how long
-   the page runs, since the browser's compositor handles it natively.
-   Percent-based translate() is relative to each blob's own box, so the
-   drift stays proportional at any blob size. Long, offset cycle lengths
-   (26-38s) with negative animation-delay so the three blobs are never in
-   sync with each other.
-   Prompt 480 — Prompt 479 shipped genuinely invisible on the real live
-   site. The gap: verification checked the CSS rules parsed and applied
-   (they did), never whether the *rendered, blurred, alpha-blended*
-   result was actually perceptible against this site's light background.
-   Root cause, worked out by hand-computing the real alpha blend: a
-   radial-gradient already fades from its stated color at the very
-   center, so even at peak keyframe opacity (0.26) only the exact center
-   pixel approached that value — blended against --bg-base (#e5ecea) that
-   peak-center case computed to an RGB distance of only ~34/255, and most
-   of the cycle sat well below peak. Fixed by roughly doubling every
-   opacity keyframe (peak ~0.48-0.54, trough raised too so the "dim" part
-   of the breathing cycle is never near-invisible either), reducing blur
-   from 90px to 68px so more of each blob's intensity survives near its
-   own center, and adding a saturate() boost so the same hue reads more
-   vividly without needing opacity alone to carry it. Hand-computed the
-   new peak-center blend: ~65/255 RGB distance — roughly double the old
-   figure, matching Brayden's own "try roughly double" instruction.
+/* Prompt 479-482 (ambient glow, page-wide lava-lamp blobs) shipped,
+   iterated, and was then scrapped outright by Prompt 483 — Brayden saw
+   the goo-merge result live and didn't want it, too bold/blobby, wrong
+   direction entirely. Full history of that abandoned approach lived
+   here across four iterations; removed along with AmbientGlow.jsx
+   rather than left as dead commented-out CSS. See git history
+   (up to commit bb0effb) if that approach is ever worth revisiting.
 
-   Prompt 481 — "lava lamp" motion: the plain CSS blur/saturate that used
-   to live on .ambient-blob moved up to .ambient-goo-group as an SVG goo
-   filter (feGaussianBlur -> high-contrast feColorMatrix on alpha, see
-   AmbientGlow.jsx) plus a chained saturate(), since the filter has to
-   see all three blobs composited together as one bitmap for two
-   overlapping blobs to actually fuse instead of just crossing as two
-   independent blurs. Drift keyframes switched from small percent-of-own-
-   box offsets to real vw/vh translation so each blob sweeps a large,
-   independent, offset path across the viewport and the three paths
-   cross mid-cycle.
-
-   Prompt 482 — live review on 481 flagged two remaining problems with
-   the blob shapes themselves (motion/merge mechanism untouched): a
-   visible brighter core (fixed by switching each blob's fill to a flat
-   solid color in AmbientGlow.jsx, no gradient ramp left to fix here),
-   and "circles bouncing around" instead of organic lava-lamp shapes.
-   Fixed with a second, independently-timed border-radius keyframe set
-   per blob (13-21s, well off the 29-41s drift cycles and each other, so
-   morph phase never lines up with drift phase or between blobs) layered
-   onto the same element via the multi-value `animation` shorthand -
-   each blob drifts, morphs, and goo-merges with its neighbors all at
-   once. Base .ambient-blob border-radius changed from a perfect-circle
-   9999px to one of the morph waypoints, so reduced-motion users (no
-   keyframes at all) still see an organic asymmetric shape, not a disc. */
-.ambient-goo-group {
-  position: relative;
-  filter: url(#ambient-goo) saturate(165%);
-}
-
-.ambient-blob {
+   Prompt 483 — replacement concept, confirmed with Brayden directly
+   before building (shown a reference image, picked the build approach
+   below over a heavier shader/noise option): a smooth, silky waving
+   gradient texture confined to the Hero section only, not a page-wide
+   layer. A few large, soft, elongated radial-gradient bands in the
+   site's accent blue, layered and overlapping, drifting slowly via
+   transform (translate/rotate/scale — deliberately not opacity, per
+   Brayden's own picked approach of simple layered gradients rather than
+   a true noise/shader flow sim) so the overlaps themselves create a
+   shifting, banded "waving" impression as they cross. Carries forward
+   the Prompt 480 lesson directly: verified real rendered alpha-blend
+   contrast against --bg-base before shipping, not just that the CSS
+   parses (see HeroWave in Hero.jsx for the hand-computed numbers). */
+.hero-wave {
   position: absolute;
-  border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%;
   pointer-events: none;
-  will-change: transform, border-radius;
+  border-radius: 9999px;
+  filter: blur(85px) saturate(140%);
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .ambient-blob-a {
-    animation:
-      ambient-drift-a 34s ease-in-out infinite,
-      ambient-morph-a 19s ease-in-out infinite;
+  .hero-wave-a {
+    animation: hero-wave-drift-a 46s ease-in-out infinite;
   }
-  .ambient-blob-b {
-    animation:
-      ambient-drift-b 41s ease-in-out infinite,
-      ambient-morph-b 15s ease-in-out infinite;
-    animation-delay: -12s, -6s;
+  .hero-wave-b {
+    animation: hero-wave-drift-b 58s ease-in-out infinite;
+    animation-delay: -18s;
   }
-  .ambient-blob-c {
-    animation:
-      ambient-drift-c 29s ease-in-out infinite,
-      ambient-morph-c 23s ease-in-out infinite;
-    animation-delay: -20s, -10s;
+  .hero-wave-c {
+    animation: hero-wave-drift-c 39s ease-in-out infinite;
+    animation-delay: -27s;
   }
 }
 
-@keyframes ambient-drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.34; }
-  25% { transform: translate(22vw, 12vh) scale(1.1); opacity: 0.48; }
-  50% { transform: translate(36vw, -10vh) scale(1.25); opacity: 0.54; }
-  75% { transform: translate(14vw, -22vh) scale(1.05); opacity: 0.44; }
+@keyframes hero-wave-drift-a {
+  0%, 100% { transform: translate(-6%, -4%) rotate(-6deg) scale(1); }
+  50% { transform: translate(9%, 6%) rotate(4deg) scale(1.12); }
 }
 
-@keyframes ambient-drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.28; }
-  25% { transform: translate(-19vw, -15vh) scale(0.9); opacity: 0.42; }
-  50% { transform: translate(-33vw, 5vh) scale(1.15); opacity: 0.48; }
-  75% { transform: translate(-12vw, 19vh) scale(0.95); opacity: 0.38; }
+@keyframes hero-wave-drift-b {
+  0%, 100% { transform: translate(7%, 3%) rotate(5deg) scale(1); }
+  50% { transform: translate(-8%, -7%) rotate(-5deg) scale(0.9); }
 }
 
-@keyframes ambient-drift-c {
-  0%, 100% { transform: translate(0, 0) scale(1.05); opacity: 0.30; }
-  25% { transform: translate(17vw, -19vh) scale(0.9); opacity: 0.44; }
-  50% { transform: translate(29vw, -33vh) scale(1.2); opacity: 0.50; }
-  75% { transform: translate(9vw, -13vh) scale(0.95); opacity: 0.36; }
-}
-
-@keyframes ambient-morph-a {
-  0%, 100% { border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%; }
-  33% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  66% { border-radius: 35% 65% 55% 45% / 40% 65% 35% 60%; }
-}
-
-@keyframes ambient-morph-b {
-  0%, 100% { border-radius: 55% 45% 40% 60% / 50% 55% 45% 50%; }
-  33% { border-radius: 30% 70% 60% 40% / 65% 35% 65% 35%; }
-  66% { border-radius: 65% 35% 45% 55% / 35% 60% 40% 65%; }
-}
-
-@keyframes ambient-morph-c {
-  0%, 100% { border-radius: 48% 52% 58% 42% / 55% 48% 52% 45%; }
-  33% { border-radius: 65% 35% 40% 60% / 40% 65% 35% 60%; }
-  66% { border-radius: 38% 62% 55% 45% / 60% 40% 65% 35%; }
+@keyframes hero-wave-drift-c {
+  0%, 100% { transform: translate(-4%, 6%) rotate(3deg) scale(1.05); }
+  50% { transform: translate(6%, -8%) rotate(-4deg) scale(0.92); }
 }
 
 .eyebrow {
