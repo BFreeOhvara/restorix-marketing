@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
 import { PhoneIncoming, MessageSquareText, CalendarCheck } from 'lucide-react'
 import { PrimaryButton, SecondaryButton } from './ui/Button'
-import ParticleField from './ui/ParticleField'
 
 const TICKER = ['24/7 INQUIRY CAPTURE', 'LEVEL-OF-CARE TRIAGE', 'AUTOMATIC BOOKING']
 
@@ -10,6 +9,14 @@ const TIMELINE = [
   { icon: MessageSquareText, label: 'Text-back sent', time: '0:04' },
   { icon: CalendarCheck, label: 'Consult booked', time: '2:17' },
 ]
+
+// Prompt 472 — corrects Prompt 467's hero background: Brayden's actual ask
+// was "more life via subtle animation," not a Regenix-style dot/particle
+// network (which is what shipped and read as too close a copy). Removed
+// the network entirely; the motion now lives on the Live Intake card
+// itself, since that's the one piece of the hero that's actually about
+// the product rather than a generic tech-background graphic.
+const ROW_CYCLE_SECONDS = 3
 
 function LiveCard() {
   return (
@@ -21,15 +28,31 @@ function LiveCard() {
     >
       <div className="flex items-center justify-between">
         <span className="eyebrow">Live intake</span>
-        <span className="flex h-2 w-2 animate-pulse rounded-full bg-accent" />
+        <motion.span
+          animate={{ opacity: [1, 0.35, 1] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+          className="flex h-2 w-2 rounded-full bg-accent"
+        />
       </div>
       <div className="mt-5 space-y-4">
         {TIMELINE.map((step, i) => (
           <motion.div
             key={step.label}
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 + i * 0.18 }}
+            // Each row replays its own fade/slide-in on a shared 3s cycle,
+            // staggered one row apart (3 rows over 3s = 1s apart) — the
+            // repeat is infinite and the delay only offsets each row's
+            // first play, so the stagger holds indefinitely: row 2 is
+            // always exactly one step "behind" row 1, forever, reading as
+            // the intake replaying live rather than a one-shot page-load
+            // reveal.
+            animate={{ opacity: [0, 1, 1], x: [-12, 0, 0] }}
+            transition={{
+              duration: ROW_CYCLE_SECONDS,
+              times: [0, 0.25, 1],
+              delay: 0.7 + i * (ROW_CYCLE_SECONDS / TIMELINE.length),
+              repeat: Infinity,
+              ease: [0.22, 0.68, 0.32, 0.99],
+            }}
             className="flex items-center gap-3"
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-base text-accent">
@@ -52,7 +75,6 @@ export default function Hero() {
     <section id="top" className="relative overflow-hidden pb-20 pt-28 md:pt-36">
       <div className="glow h-[380px] w-[380px] -right-16 top-10" />
       <div className="glow h-[260px] w-[260px] left-[-8%] bottom-0 opacity-15" />
-      <ParticleField className="pointer-events-none absolute inset-0" />
 
       <div className="relative mx-auto grid max-w-shell items-center gap-14 px-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
