@@ -80,41 +80,63 @@ body {
    own center, and adding a saturate() boost so the same hue reads more
    vividly without needing opacity alone to carry it. Hand-computed the
    new peak-center blend: ~65/255 RGB distance — roughly double the old
-   figure, matching Brayden's own "try roughly double" instruction. */
+   figure, matching Brayden's own "try roughly double" instruction.
+
+   Prompt 481 — "lava lamp" motion: the plain CSS blur/saturate that used
+   to live on .ambient-blob moved up to .ambient-goo-group as an SVG goo
+   filter (feGaussianBlur -> high-contrast feColorMatrix on alpha, see
+   AmbientGlow.jsx) plus a chained saturate(), since the filter has to
+   see all three blobs composited together as one bitmap for two
+   overlapping blobs to actually fuse instead of just crossing as two
+   independent blurs. Drift keyframes switched from small percent-of-own-
+   box offsets to real vw/vh translation so each blob sweeps a large,
+   independent, offset path across the viewport and the three paths
+   cross mid-cycle. */
+.ambient-goo-group {
+  position: relative;
+  filter: url(#ambient-goo) saturate(165%);
+}
+
 .ambient-blob {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(68px) saturate(165%);
   pointer-events: none;
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .ambient-blob-a {
-    animation: ambient-drift-a 32s ease-in-out infinite;
+    animation: ambient-drift-a 34s ease-in-out infinite;
   }
   .ambient-blob-b {
-    animation: ambient-drift-b 38s ease-in-out infinite;
-    animation-delay: -9s;
+    animation: ambient-drift-b 41s ease-in-out infinite;
+    animation-delay: -12s;
   }
   .ambient-blob-c {
-    animation: ambient-drift-c 26s ease-in-out infinite;
-    animation-delay: -17s;
+    animation: ambient-drift-c 29s ease-in-out infinite;
+    animation-delay: -20s;
   }
 }
 
 @keyframes ambient-drift-a {
-  0%, 100% { transform: translate(-6%, -6%) scale(1); opacity: 0.34; }
-  50% { transform: translate(9%, 7%) scale(1.2); opacity: 0.54; }
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.34; }
+  25% { transform: translate(22vw, 12vh) scale(1.1); opacity: 0.48; }
+  50% { transform: translate(36vw, -10vh) scale(1.25); opacity: 0.54; }
+  75% { transform: translate(14vw, -22vh) scale(1.05); opacity: 0.44; }
 }
 
 @keyframes ambient-drift-b {
-  0%, 100% { transform: translate(5%, 7%) scale(1); opacity: 0.28; }
-  50% { transform: translate(-8%, -5%) scale(0.85); opacity: 0.48; }
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.28; }
+  25% { transform: translate(-19vw, -15vh) scale(0.9); opacity: 0.42; }
+  50% { transform: translate(-33vw, 5vh) scale(1.15); opacity: 0.48; }
+  75% { transform: translate(-12vw, 19vh) scale(0.95); opacity: 0.38; }
 }
 
 @keyframes ambient-drift-c {
-  0%, 100% { transform: translate(-7%, 5%) scale(1.05); opacity: 0.30; }
-  50% { transform: translate(6%, -9%) scale(0.88); opacity: 0.50; }
+  0%, 100% { transform: translate(0, 0) scale(1.05); opacity: 0.30; }
+  25% { transform: translate(17vw, -19vh) scale(0.9); opacity: 0.44; }
+  50% { transform: translate(29vw, -33vh) scale(1.2); opacity: 0.50; }
+  75% { transform: translate(9vw, -13vh) scale(0.95); opacity: 0.36; }
 }
 
 .eyebrow {
