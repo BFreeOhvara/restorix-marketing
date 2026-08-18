@@ -13,19 +13,25 @@
 // section — most sections here have no opaque full-width background of
 // their own, so the glow shows through everywhere except inside
 // individual cards/panels that do set one.
+//
+// Prompt 480 — sizes bumped ~15-20% on top of the opacity/blur/saturation
+// fix in index.css: a larger blob has a larger near-full-intensity core
+// relative to the fixed 68px blur radius, which further helps real
+// visibility without pushing opacity any higher than Brayden's own
+// suggested range.
 export default function AmbientGlow() {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
       <div
-        className="ambient-blob ambient-blob-a h-[30rem] w-[30rem] -left-32 top-[6%]"
+        className="ambient-blob ambient-blob-a h-[34rem] w-[34rem] -left-32 top-[6%]"
         style={{ background: 'radial-gradient(circle, var(--accent-bright), rgba(0,0,0,0) 70%)' }}
       />
       <div
-        className="ambient-blob ambient-blob-b h-[35rem] w-[35rem] -right-40 top-[40%]"
+        className="ambient-blob ambient-blob-b h-[40rem] w-[40rem] -right-40 top-[40%]"
         style={{ background: 'radial-gradient(circle, var(--accent), rgba(0,0,0,0) 70%)' }}
       />
       <div
-        className="ambient-blob ambient-blob-c h-[26rem] w-[26rem] left-[18%] -bottom-24"
+        className="ambient-blob ambient-blob-c h-[30rem] w-[30rem] left-[18%] -bottom-24"
         style={{ background: 'radial-gradient(circle, var(--accent-deep), rgba(0,0,0,0) 70%)' }}
       />
     </div>
