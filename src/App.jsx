@@ -1,3 +1,4 @@
+import AmbientGlow from './components/ui/AmbientGlow'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Leak from './components/Leak'
@@ -12,8 +13,9 @@ import ChatWidget from './components/ChatWidget'
 export default function App() {
   return (
     <div className="relative min-h-screen overflow-x-clip bg-base">
+      <AmbientGlow />
       <Nav />
-      <main>
+      <main className="relative z-10">
         <Hero />
         <Leak />
         <System />
@@ -22,7 +24,9 @@ export default function App() {
         <Outcomes />
         <FinalCTA />
       </main>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
       <ChatWidget />
     </div>
   )

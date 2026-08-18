@@ -55,6 +55,51 @@ body {
   opacity: 0.35;
 }
 
+/* Prompt 479 — page-wide ambient motion, Brayden's own idea ("come up
+   with the idea"): extend this site's existing static .glow blob motif
+   into slow, continuous, very subtle drift. Pure CSS transform/opacity
+   keyframes only (no canvas, no JS loop) — cheap regardless of how long
+   the page runs, since the browser's compositor handles it natively.
+   Percent-based translate() is relative to each blob's own box, so the
+   drift stays proportional at any blob size. Long, offset cycle lengths
+   (26-38s) with negative animation-delay so the three blobs are never in
+   sync with each other. */
+.ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-blob-a {
+    animation: ambient-drift-a 32s ease-in-out infinite;
+  }
+  .ambient-blob-b {
+    animation: ambient-drift-b 38s ease-in-out infinite;
+    animation-delay: -9s;
+  }
+  .ambient-blob-c {
+    animation: ambient-drift-c 26s ease-in-out infinite;
+    animation-delay: -17s;
+  }
+}
+
+@keyframes ambient-drift-a {
+  0%, 100% { transform: translate(-6%, -6%) scale(1); opacity: 0.16; }
+  50% { transform: translate(9%, 7%) scale(1.2); opacity: 0.26; }
+}
+
+@keyframes ambient-drift-b {
+  0%, 100% { transform: translate(5%, 7%) scale(1); opacity: 0.13; }
+  50% { transform: translate(-8%, -5%) scale(0.85); opacity: 0.22; }
+}
+
+@keyframes ambient-drift-c {
+  0%, 100% { transform: translate(-7%, 5%) scale(1.05); opacity: 0.14; }
+  50% { transform: translate(6%, -9%) scale(0.88); opacity: 0.24; }
+}
+
 .eyebrow {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
