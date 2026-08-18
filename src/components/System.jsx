@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
+import { motion } from 'framer-motion'
 import { PhoneIncoming, MessageSquareText, Stethoscope, ClipboardCheck, HeartHandshake } from 'lucide-react'
 import Reveal from './ui/Reveal'
 import SectionHeading from './ui/SectionHeading'
-import SystemDiagram from './ui/SystemDiagram'
 
 const CAPABILITIES = [
   {
@@ -38,14 +38,13 @@ const CAPABILITIES = [
   },
 ]
 
-// Prompt 467: scroll-linked active-step tracking for the new circular
-// diagram — whichever capability block is nearest the viewport's vertical
-// center becomes "active." rootMargin shrinks the observed band to 45%
-// from each edge, so the swap happens as a block crosses mid-screen
-// rather than the instant it merely enters view. Works both scroll
-// directions by construction — re-entering the band from either side
-// fires `isIntersecting: true` and updates `active`, with no special-case
-// needed for scrolling up vs. down.
+// Prompt 467: scroll-linked active-step tracking — whichever capability
+// block is nearest the viewport's vertical center becomes "active."
+// rootMargin shrinks the observed band to 45% from each edge, so the swap
+// happens as a block crosses mid-screen rather than the instant it merely
+// enters view. Works both scroll directions by construction — re-entering
+// the band from either side fires `isIntersecting: true` and updates
+// `active`, with no special-case needed for scrolling up vs. down.
 function useActiveCapability(count) {
   const itemRefs = useRef([])
   const [active, setActive] = useState(0)
@@ -68,8 +67,18 @@ function useActiveCapability(count) {
   return { itemRefs, active }
 }
 
+// Prompt 473 — corrects Prompt 467's circular orbiting diagram (own
+// SystemDiagram.jsx, now deleted), which read as too close a copy of
+// Regenix's own Process section. Replaced with a vertical scroll-fill
+// line down the left side of the same stacked cards, driven by the same
+// `active` scroll-spy state Prompt 467 already built (still bidirectional
+// by construction) — a step-progress fill, not a continuous scroll-offset
+// tracker, consistent with how `active` already drives every other piece
+// of state in this section. The active icon badge gets a glow instead of
+// a solid-black fill; inactive badges stay a plain light-gray outline.
 export default function System() {
   const { itemRefs, active } = useActiveCapability(CAPABILITIES.length)
+  const fillPct = ((active + 1) / CAPABILITIES.length) * 100
 
   return (
     <section id="system" className="relative py-24 md:py-32">
@@ -87,40 +96,58 @@ export default function System() {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-10 lg:grid-cols-[280px_1fr] lg:gap-16">
-          <div className="hidden lg:block">
-            <div className="sticky top-32 flex justify-center">
-              <SystemDiagram items={CAPABILITIES} active={active} />
-            </div>
-          </div>
+        <div className="relative mt-16">
+          <div className="absolute left-7 top-2 bottom-2 hidden w-px bg-line md:block" />
+          <motion.div
+            className="absolute left-7 top-2 hidden w-px origin-top bg-accent md:block"
+            initial={false}
+            animate={{ height: `${fillPct}%` }}
+            transition={{ duration: 0.4, ease: [0.22, 0.68, 0.32, 0.99] }}
+          />
 
           <div className="space-y-8">
-            {CAPABILITIES.map((c, i) => (
-              <div key={c.n} ref={(el) => (itemRefs.current[i] = el)}>
-                <Reveal direction="up" delay={i * 0.05}>
-                  <div
+            {CAPABILITIES.map((c, i) => {
+              const isActive = active === i
+              return (
+                <div key={c.n} ref={(el) => (itemRefs.current[i] = el)} className="relative md:pl-16">
+                  <span
                     className={clsx(
-                      'rounded-card border p-7 transition-colors duration-300 lg:max-w-2xl',
-                      active === i ? 'border-accent/40 bg-elevated' : 'border-line bg-surface'
+                      'absolute left-0 top-0 z-10 hidden h-14 w-14 items-center justify-center rounded-full border-2 bg-elevated transition-all duration-300 md:flex',
+                      isActive
+                        ? 'border-accent text-accent shadow-[0_0_0_6px_rgba(58,99,214,0.15),0_0_22px_-2px_rgba(58,99,214,0.55)]'
+                        : 'border-line text-fg-faint'
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={clsx(
-                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-300',
-                          active === i ? 'border-accent bg-accent text-white' : 'border-accent/30 bg-elevated text-accent'
-                        )}
-                      >
-                        <c.icon size={17} strokeWidth={1.75} />
-                      </span>
-                      <span className="eyebrow">{c.n}</span>
+                    <c.icon size={20} strokeWidth={1.75} />
+                  </span>
+                  <Reveal direction="up" delay={i * 0.05}>
+                    <div
+                      className={clsx(
+                        'rounded-card border p-7 transition-colors duration-300 md:max-w-2xl',
+                        isActive ? 'border-accent/40 bg-elevated' : 'border-line bg-surface'
+                      )}
+                    >
+                      <div className="flex items-center gap-3 md:hidden">
+                        <span
+                          className={clsx(
+                            'flex h-9 w-9 items-center justify-center rounded-full border-2 bg-elevated transition-all duration-300',
+                            isActive ? 'border-accent text-accent shadow-[0_0_16px_-2px_rgba(58,99,214,0.55)]' : 'border-line text-fg-faint'
+                          )}
+                        >
+                          <c.icon size={16} strokeWidth={1.75} />
+                        </span>
+                        <span className="eyebrow">{c.n}</span>
+                      </div>
+                      <span className="eyebrow hidden md:inline">{c.n}</span>
+                      <h3 className="mt-2 font-display text-lg font-medium text-fg-primary md:mt-1">
+                        {c.title}
+                      </h3>
+                      <p className="mt-2 font-sans text-sm leading-relaxed text-fg-secondary">{c.body}</p>
                     </div>
-                    <h3 className="mt-3 font-display text-lg font-medium text-fg-primary">{c.title}</h3>
-                    <p className="mt-2 font-sans text-sm leading-relaxed text-fg-secondary">{c.body}</p>
-                  </div>
-                </Reveal>
-              </div>
-            ))}
+                  </Reveal>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
