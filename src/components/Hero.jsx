@@ -80,6 +80,50 @@ const TIMELINE = [
 // media query the way CSS `@keyframes` are — each path also carries a
 // static `d` (the animation's own first keyframe) so reduced-motion
 // users still see the full shape, just not rippling.
+//
+// Prompt 486 — 485's port diverged from the approved reference on live
+// review: no visible motion, plus a hard cutoff line partway down the
+// hero. Two targeted fixes, design values untouched:
+//   1. Added an explicit `keyTimes="0;0.33;0.67;1"` to both <animate>
+//      elements. Per the SMIL spec, `calcMode="spline"` requires
+//      `keyTimes` to define the interval boundaries `keySplines` eases
+//      between — the reference file omits it (relying on an implicit
+//      uniform default), which is a real spec gap that can make a
+//      strict engine treat the whole animation as invalid and simply
+//      not run it, rather than gracefully falling back. Making it
+//      explicit removes that ambiguity without changing the timing
+//      (0/0.33/0.67/1 is exactly the uniform default for 4 values).
+//   2. Filter switched from the default `objectBoundingBox` units
+//      (`x/y/width/height` as percentages of the filtered content's own
+//      bounding box) to `filterUnits="userSpaceOnUse"` with a large,
+//      explicit region in viewBox units. `objectBoundingBox` percentage
+//      regions are a well-documented source of inconsistent cross-
+//      browser handling for stroked-but-unfilled paths specifically —
+//      implementations vary on whether the bounding box used for that
+//      percentage math accounts for `stroke-width` (230 on the outer
+//      path here) at all, and an under-sized region clips the Gaussian
+//      blur's soft falloff at a hard edge instead of letting it fade —
+//      which reads exactly as the "hard cutoff line" reported, and
+//      would explain why the same numbers looked fine in the reference
+//      file's own rendering context but not here. `userSpaceOnUse` with
+//      generous, explicit bounds removes that ambiguity entirely.
+//   (Also tried and reverted a third fix this pass: removing the
+//   `h-full w-full` classes on the theory that `inset-0` alone should
+//   be sufficient and more robust. Verified experimentally instead that
+//   removing them causes the SVG — a replaced element with an intrinsic
+//   aspect ratio from its own viewBox — to fall back to computing
+//   height from that 12:7 ratio rather than stretching to the section's
+//   real height, which is itself a container-height mismatch bug. Kept
+//   `h-full w-full`, which measurably makes the SVG's rendered box
+//   match the hero section's box exactly.)
+// Both bugs were reported from a real browser and could not be directly
+// re-observed in this project's own verification tooling this session —
+// SMIL, like every other frame-tied animation type logged this session
+// (CSS `@keyframes`, framer-motion, `requestAnimationFrame`), never
+// visibly advances past its first frame in this pane, and a real
+// screenshot tool was unavailable again. Verified by construction
+// instead (see commit message) and flagged honestly rather than
+// claimed confirmed — worth a direct look on the real live site.
 function HeroWave() {
   const reduced = usePrefersReducedMotion()
   return (
@@ -90,7 +134,14 @@ function HeroWave() {
       aria-hidden="true"
     >
       <defs>
-        <filter id="hero-wave-blur" x="-50%" y="-50%" width="200%" height="200%">
+        <filter
+          id="hero-wave-blur"
+          filterUnits="userSpaceOnUse"
+          x="-500"
+          y="-400"
+          width="2400"
+          height="1600"
+        >
           <feGaussianBlur stdDeviation="32" />
         </filter>
       </defs>
@@ -114,6 +165,7 @@ function HeroWave() {
               dur="18s"
               repeatCount="indefinite"
               calcMode="spline"
+              keyTimes="0;0.33;0.67;1"
               keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
             />
           )}
@@ -137,6 +189,7 @@ function HeroWave() {
               dur="18s"
               repeatCount="indefinite"
               calcMode="spline"
+              keyTimes="0;0.33;0.67;1"
               keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
             />
           )}
