@@ -16,7 +16,11 @@ const TIMELINE = [
 // the network entirely; the motion now lives on the Live Intake card
 // itself, since that's the one piece of the hero that's actually about
 // the product rather than a generic tech-background graphic.
-const ROW_CYCLE_SECONDS = 3
+// Prompt 478 — corrects Prompt 472's own execution: the rows looping
+// forever wasn't the ask, a one-time entrance on load was ("maybe when
+// it first loads up, they slide in"). Reverted to a plain initial/animate
+// reveal, no repeat. The status dot's slow pulse stays — that wasn't the
+// complaint, per the prompt's own explicit default.
 
 function LiveCard() {
   return (
@@ -38,21 +42,9 @@ function LiveCard() {
         {TIMELINE.map((step, i) => (
           <motion.div
             key={step.label}
-            // Each row replays its own fade/slide-in on a shared 3s cycle,
-            // staggered one row apart (3 rows over 3s = 1s apart) — the
-            // repeat is infinite and the delay only offsets each row's
-            // first play, so the stagger holds indefinitely: row 2 is
-            // always exactly one step "behind" row 1, forever, reading as
-            // the intake replaying live rather than a one-shot page-load
-            // reveal.
-            animate={{ opacity: [0, 1, 1], x: [-12, 0, 0] }}
-            transition={{
-              duration: ROW_CYCLE_SECONDS,
-              times: [0, 0.25, 1],
-              delay: 0.7 + i * (ROW_CYCLE_SECONDS / TIMELINE.length),
-              repeat: Infinity,
-              ease: [0.22, 0.68, 0.32, 0.99],
-            }}
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 + i * 0.18, ease: [0.22, 0.68, 0.32, 0.99] }}
             className="flex items-center gap-3"
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-base text-accent">
