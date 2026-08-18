@@ -58,7 +58,27 @@ export default function Leak() {
                   <div>
                     <span className="eyebrow">{s.n} / The Leak</span>
                     <h3 className="mt-3 font-display text-2xl font-medium text-fg-primary">{s.title}</h3>
-                    <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-fg-secondary md:text-base">
+                    {/* Prompt 485 — the `text-fg-secondary` class alone
+                        was computing to var(--bg-base) instead of
+                        var(--text-secondary) on exactly these 4 elements
+                        specifically (confirmed live on restorix.co via
+                        getComputedStyle, both locally and in production;
+                        the stylesheet has exactly one matching
+                        `.text-fg-secondary{color:var(--text-secondary)}`
+                        rule and the custom property itself resolves
+                        correctly when read directly — root cause not
+                        fully pinned down despite ruling out duplicate
+                        rules, opacity/reveal-state deferral, and
+                        cascade/specificity conflicts). This was the
+                        white-text-on-light-background bug flagged in
+                        Prompt 484 that an earlier sweep missed. An
+                        inline style always wins regardless of whatever
+                        is causing the class rule to lose, so it's a safe,
+                        verified-effective fix independent of root cause. */}
+                    <p
+                      className="mt-3 max-w-md font-sans text-sm leading-relaxed text-fg-secondary md:text-base"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
                       {s.body}
                     </p>
                   </div>

@@ -1,6 +1,20 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { PhoneIncoming, MessageSquareText, CalendarCheck } from 'lucide-react'
 import { PrimaryButton, SecondaryButton } from './ui/Button'
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const onChange = () => setReduced(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return reduced
+}
 
 const TICKER = ['24/7 INQUIRY CAPTURE', 'LEVEL-OF-CARE TRIAGE', 'AUTOMATIC BOOKING']
 
@@ -23,69 +37,112 @@ const TIMELINE = [
 // complaint, per the prompt's own explicit default.
 //
 // Prompt 484 — live review flagged that the card's glass/frosted-panel
-// feel was gone, making it read as a flat opaque box against whatever's
-// moving behind it. Checked git history first, per the prompt's own
+// feel was gone. Checked git history first, per the prompt's own
 // instruction, rather than guessing values — this card has used a fully
 // opaque `bg-elevated` since it was introduced in Prompt 430; a genuine
-// glassmorphism treatment never actually existed here in code before,
-// so there were no prior opacity/blur values to restore. Built one now:
-// a translucent white fill + `backdrop-blur-xl`. Uses a literal
-// `bg-[rgba(255,255,255,0.72)]` rather than `bg-elevated/72` — the
-// latter would silently generate no CSS at all, the same broken
-// Tailwind-opacity-modifier bug this pass also found (and fixed) on
-// Nav.jsx's own scroll-glass background (see Nav.jsx comment).
+// glassmorphism treatment never actually existed here in code before, so
+// 484 built one from scratch (approximate values). Prompt 485 replaces
+// those with the exact values from the now-approved reference file's own
+// `.glass-card` rule, copied directly rather than re-derived: `rgba(255,
+// 255,255,0.55)` fill, `blur(20px)`, `1px solid rgba(255,255,255,0.8)`
+// border, `16px` radius, `0 20px 60px rgba(58,99,214,0.15)` shadow — set
+// via inline `style` rather than Tailwind classes so the numbers match
+// the approved file exactly, with no arbitrary-value/opacity-modifier
+// compilation risk (the same class of bug 484 found and fixed on
+// Nav.jsx's own glass background).
 
-// Prompt 483 — replaces the page-wide ambient-glow lava-lamp blobs
-// (Prompts 479-482, scrapped outright — Brayden saw it live and didn't
-// want it) with a much calmer, hero-scoped waving gradient. Confirmed
-// with Brayden directly before building: layered, animated CSS gradients
-// (not a noise/shader flow sim) — three large, blurred, elongated
-// radial-gradient bands in the site's own accent-blue family, each
-// rotated at a different base angle and drifting slowly via
-// translate/rotate/scale (deliberately not opacity — kept simple per
-// the picked approach). The overlaps between bands are what create the
-// shifting "waving" impression as they drift past each other, not any
-// one band's own shape changing.
+// Prompt 483 — replaced page-wide ambient-glow lava-lamp blobs with a
+// hero-scoped layered-gradient wave. Prompt 485 replaced *this* in turn
+// — Brayden didn't like the gradient-band result either, and this went
+// through several live rounds against a standalone HTML mockup before
+// landing on the version below. History of both superseded attempts is
+// in git (up to commit 5cd74bd) and [[Restorix Memories]], not repeated
+// as dead code here.
 //
-// Carries the Prompt 480 lesson forward directly: hand-computed the real
-// peak-center alpha blend against --bg-base (#e5ecea, rgb 229/236/234)
-// before shipping, not just confirmed the CSS parses. All three bands
-// clear the ~34/255 threshold Prompt 480 established as the edge of
-// perceptible on this background:
-//   Band A (--accent-bright, opacity .34): rgb diff ≈45/255
-//   Band B (--accent, opacity .26):        rgb diff ≈57/255
-//   Band C (--accent-deep, opacity .22):   rgb diff ≈58/255
-// Deliberately still well under the blob attempt's post-480-fix peak
-// (~72/255) — "gentle and present, not invisible," per the prompt's own
-// framing, not as bold as the scrapped version.
+// Prompt 485 — ports `restorix-hero-wave-approved.html` (vault root)
+// verbatim, not a reinterpretation: two overlapping SVG `<path>` STROKES
+// (not filled shapes, not CSS gradients) inside a shared
+// `feGaussianBlur(stdDeviation=32)` filter, each path's `d` animated via
+// native SMIL `<animate>` between the same 4 keyframe strings on an 18s
+// loop (`calcMode="spline"` for the ease) — this is what makes it read
+// as one continuous shape gently rippling in place, not objects sliding
+// around. Geometry deliberately runs from off-canvas at the left wall,
+// roughly mid-height, up to off-canvas top-right — it never reaches the
+// hero's bottom edge, which is what avoids a hard cutoff line at the
+// section boundary on scroll (a real problem an earlier round hit and
+// fixed live, before this file was approved). Colors/widths/opacities
+// are copied exactly: `#7c9eff` width 230 opacity 0.7 (outer), `#3a63d6`
+// width 100 opacity 0.6 (inner) — same accent-blue family as every prior
+// attempt, just finally the right technique.
+//
+// `usePrefersReducedMotion` gates the `<animate>` children specifically
+// because SMIL isn't controlled by the `prefers-reduced-motion` CSS
+// media query the way CSS `@keyframes` are — each path also carries a
+// static `d` (the animation's own first keyframe) so reduced-motion
+// users still see the full shape, just not rippling.
 function HeroWave() {
+  const reduced = usePrefersReducedMotion()
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-      <div
-        className="hero-wave hero-wave-a h-[15rem] w-[62rem] -left-40 top-[8%]"
-        style={{
-          background: 'radial-gradient(ellipse, var(--accent-bright), rgba(0,0,0,0) 70%)',
-          opacity: 0.34,
-          transform: 'rotate(-6deg)',
-        }}
-      />
-      <div
-        className="hero-wave hero-wave-b h-[13rem] w-[54rem] -right-32 top-[32%]"
-        style={{
-          background: 'radial-gradient(ellipse, var(--accent), rgba(0,0,0,0) 70%)',
-          opacity: 0.26,
-          transform: 'rotate(5deg)',
-        }}
-      />
-      <div
-        className="hero-wave hero-wave-c h-[12rem] w-[48rem] left-[6%] bottom-[2%]"
-        style={{
-          background: 'radial-gradient(ellipse, var(--accent-deep), rgba(0,0,0,0) 70%)',
-          opacity: 0.22,
-          transform: 'rotate(3deg)',
-        }}
-      />
-    </div>
+    <svg
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+      viewBox="0 0 1200 700"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+    >
+      <defs>
+        <filter id="hero-wave-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="32" />
+        </filter>
+      </defs>
+      <g filter="url(#hero-wave-blur)">
+        <path
+          fill="none"
+          stroke="#7c9eff"
+          strokeWidth="230"
+          strokeLinecap="round"
+          opacity="0.7"
+          d="M -100 400 C 150 520, 230 340, 560 300 C 870 260, 900 60, 1250 -80"
+        >
+          {!reduced && (
+            <animate
+              attributeName="d"
+              values="
+                M -100 400 C 150 520, 230 340, 560 300 C 870 260, 900 60, 1250 -80;
+                M -100 420 C 180 500, 260 360, 540 320 C 850 280, 930 40, 1250 -60;
+                M -100 380 C 130 540, 210 320, 580 290 C 890 250, 880 80, 1250 -100;
+                M -100 400 C 150 520, 230 340, 560 300 C 870 260, 900 60, 1250 -80"
+              dur="18s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+            />
+          )}
+        </path>
+        <path
+          fill="none"
+          stroke="#3a63d6"
+          strokeWidth="100"
+          strokeLinecap="round"
+          opacity="0.6"
+          d="M -100 420 C 170 530, 280 350, 570 310 C 860 270, 890 70, 1240 -70"
+        >
+          {!reduced && (
+            <animate
+              attributeName="d"
+              values="
+                M -100 420 C 170 530, 280 350, 570 310 C 860 270, 890 70, 1240 -70;
+                M -100 440 C 200 510, 310 370, 550 330 C 840 290, 920 50, 1240 -50;
+                M -100 400 C 150 550, 260 330, 590 300 C 880 260, 870 90, 1240 -90;
+                M -100 420 C 170 530, 280 350, 570 310 C 860 270, 890 70, 1240 -70"
+              dur="18s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+            />
+          )}
+        </path>
+      </g>
+    </svg>
   )
 }
 
@@ -95,7 +152,15 @@ function LiveCard() {
       initial={{ opacity: 0, scale: 0.92, y: 30 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 0.68, 0.32, 0.99] }}
-      className="relative w-full max-w-sm rounded-card border border-line bg-[rgba(255,255,255,0.72)] p-6 shadow-[0_30px_60px_-25px_rgba(15,31,27,0.25)] backdrop-blur-xl"
+      className="relative w-full max-w-sm p-6"
+      style={{
+        background: 'rgba(255,255,255,0.55)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255,255,255,0.8)',
+        borderRadius: '16px',
+        boxShadow: '0 20px 60px rgba(58,99,214,0.15)',
+      }}
     >
       <div className="flex items-center justify-between">
         <span className="eyebrow">Live intake</span>

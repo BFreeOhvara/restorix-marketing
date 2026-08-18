@@ -55,63 +55,13 @@ body {
   opacity: 0.35;
 }
 
-/* Prompt 479-482 (ambient glow, page-wide lava-lamp blobs) shipped,
-   iterated, and was then scrapped outright by Prompt 483 — Brayden saw
-   the goo-merge result live and didn't want it, too bold/blobby, wrong
-   direction entirely. Full history of that abandoned approach lived
-   here across four iterations; removed along with AmbientGlow.jsx
-   rather than left as dead commented-out CSS. See git history
-   (up to commit bb0effb) if that approach is ever worth revisiting.
-
-   Prompt 483 — replacement concept, confirmed with Brayden directly
-   before building (shown a reference image, picked the build approach
-   below over a heavier shader/noise option): a smooth, silky waving
-   gradient texture confined to the Hero section only, not a page-wide
-   layer. A few large, soft, elongated radial-gradient bands in the
-   site's accent blue, layered and overlapping, drifting slowly via
-   transform (translate/rotate/scale — deliberately not opacity, per
-   Brayden's own picked approach of simple layered gradients rather than
-   a true noise/shader flow sim) so the overlaps themselves create a
-   shifting, banded "waving" impression as they cross. Carries forward
-   the Prompt 480 lesson directly: verified real rendered alpha-blend
-   contrast against --bg-base before shipping, not just that the CSS
-   parses (see HeroWave in Hero.jsx for the hand-computed numbers). */
-.hero-wave {
-  position: absolute;
-  pointer-events: none;
-  border-radius: 9999px;
-  filter: blur(85px) saturate(140%);
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero-wave-a {
-    animation: hero-wave-drift-a 46s ease-in-out infinite;
-  }
-  .hero-wave-b {
-    animation: hero-wave-drift-b 58s ease-in-out infinite;
-    animation-delay: -18s;
-  }
-  .hero-wave-c {
-    animation: hero-wave-drift-c 39s ease-in-out infinite;
-    animation-delay: -27s;
-  }
-}
-
-@keyframes hero-wave-drift-a {
-  0%, 100% { transform: translate(-6%, -4%) rotate(-6deg) scale(1); }
-  50% { transform: translate(9%, 6%) rotate(4deg) scale(1.12); }
-}
-
-@keyframes hero-wave-drift-b {
-  0%, 100% { transform: translate(7%, 3%) rotate(5deg) scale(1); }
-  50% { transform: translate(-8%, -7%) rotate(-5deg) scale(0.9); }
-}
-
-@keyframes hero-wave-drift-c {
-  0%, 100% { transform: translate(-4%, 6%) rotate(3deg) scale(1.05); }
-  50% { transform: translate(6%, -8%) rotate(-4deg) scale(0.92); }
-}
+/* Prompt 479-483 (ambient glow blobs, then a layered-gradient hero wave)
+   shipped, iterated, and were both superseded by Prompt 485 — Brayden
+   didn't approve either result; 485 ports an approved reference file's
+   actual SVG-path-stroke technique instead (see HeroWave in Hero.jsx).
+   Removed both abandoned approaches' CSS rather than left as dead code.
+   See git history (up to commit 5cd74bd) if either is ever worth
+   revisiting. */
 
 .eyebrow {
   font-family: 'JetBrains Mono', monospace;
