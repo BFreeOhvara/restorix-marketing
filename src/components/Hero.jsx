@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { PhoneIncoming, MessageSquareText, CalendarCheck } from 'lucide-react'
 import { PrimaryButton, SecondaryButton } from './ui/Button'
+import ParticleField from './ui/ParticleField'
 
 const TICKER = ['24/7 INQUIRY CAPTURE', 'LEVEL-OF-CARE TRIAGE', 'AUTOMATIC BOOKING']
 
@@ -51,6 +52,7 @@ export default function Hero() {
     <section id="top" className="relative overflow-hidden pb-20 pt-28 md:pt-36">
       <div className="glow h-[380px] w-[380px] -right-16 top-10" />
       <div className="glow h-[260px] w-[260px] left-[-8%] bottom-0 opacity-15" />
+      <ParticleField className="pointer-events-none absolute inset-0" />
 
       <div className="relative mx-auto grid max-w-shell items-center gap-14 px-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div>

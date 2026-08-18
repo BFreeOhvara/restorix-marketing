@@ -5,9 +5,9 @@ import System from './components/System'
 import Process from './components/Process'
 import WhoItsFor from './components/WhoItsFor'
 import Outcomes from './components/Outcomes'
-import Testimonials from './components/Testimonials'
 import FinalCTA from './components/FinalCTA'
 import Footer from './components/Footer'
+import ChatWidget from './components/ChatWidget'
 
 export default function App() {
   return (
@@ -20,10 +20,10 @@ export default function App() {
         <Process />
         <WhoItsFor />
         <Outcomes />
-        <Testimonials />
         <FinalCTA />
       </main>
       <Footer />
+      <ChatWidget />
     </div>
   )
 }

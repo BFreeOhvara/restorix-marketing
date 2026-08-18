@@ -1,7 +1,9 @@
+import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { PhoneIncoming, MessageSquareText, Stethoscope, ClipboardCheck, HeartHandshake } from 'lucide-react'
 import Reveal from './ui/Reveal'
 import SectionHeading from './ui/SectionHeading'
+import SystemDiagram from './ui/SystemDiagram'
 
 const CAPABILITIES = [
   {
@@ -36,7 +38,39 @@ const CAPABILITIES = [
   },
 ]
 
+// Prompt 467: scroll-linked active-step tracking for the new circular
+// diagram — whichever capability block is nearest the viewport's vertical
+// center becomes "active." rootMargin shrinks the observed band to 45%
+// from each edge, so the swap happens as a block crosses mid-screen
+// rather than the instant it merely enters view. Works both scroll
+// directions by construction — re-entering the band from either side
+// fires `isIntersecting: true` and updates `active`, with no special-case
+// needed for scrolling up vs. down.
+function useActiveCapability(count) {
+  const itemRefs = useRef([])
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          const idx = itemRefs.current.indexOf(entry.target)
+          if (idx !== -1) setActive(idx)
+        }
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
+    )
+    itemRefs.current.slice(0, count).forEach((el) => el && observer.observe(el))
+    return () => observer.disconnect()
+  }, [count])
+
+  return { itemRefs, active }
+}
+
 export default function System() {
+  const { itemRefs, active } = useActiveCapability(CAPABILITIES.length)
+
   return (
     <section id="system" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-shell px-6">
@@ -53,41 +87,40 @@ export default function System() {
           </Reveal>
         </div>
 
-        <div className="relative mt-16">
-          <div className="absolute left-6 top-4 bottom-4 hidden w-px bg-line md:block" />
+        <div className="mt-16 grid gap-10 lg:grid-cols-[280px_1fr] lg:gap-16">
+          <div className="hidden lg:block">
+            <div className="sticky top-32 flex justify-center">
+              <SystemDiagram items={CAPABILITIES} active={active} />
+            </div>
+          </div>
+
           <div className="space-y-8">
-            {CAPABILITIES.map((c, i) => {
-              const reversed = i % 2 === 1
-              return (
-                <Reveal key={c.n} direction={reversed ? 'right' : 'left'} delay={i * 0.05}>
-                  <div className="grid gap-5 md:grid-cols-[3rem_1fr] md:gap-8">
-                    <div className="relative hidden md:block">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-elevated text-accent">
-                        <c.icon size={18} strokeWidth={1.75} />
+            {CAPABILITIES.map((c, i) => (
+              <div key={c.n} ref={(el) => (itemRefs.current[i] = el)}>
+                <Reveal direction="up" delay={i * 0.05}>
+                  <div
+                    className={clsx(
+                      'rounded-card border p-7 transition-colors duration-300 lg:max-w-2xl',
+                      active === i ? 'border-accent/40 bg-elevated' : 'border-line bg-surface'
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={clsx(
+                          'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors duration-300',
+                          active === i ? 'border-accent bg-accent text-white' : 'border-accent/30 bg-elevated text-accent'
+                        )}
+                      >
+                        <c.icon size={17} strokeWidth={1.75} />
                       </span>
+                      <span className="eyebrow">{c.n}</span>
                     </div>
-                    <div
-                      className={clsx(
-                        'rounded-card border border-line bg-surface p-7 md:max-w-2xl',
-                        reversed && 'md:ml-auto'
-                      )}
-                    >
-                      <div className="flex items-center gap-3 md:hidden">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-elevated text-accent">
-                          <c.icon size={16} strokeWidth={1.75} />
-                        </span>
-                        <span className="eyebrow">{c.n}</span>
-                      </div>
-                      <span className="eyebrow hidden md:inline">{c.n}</span>
-                      <h3 className="mt-2 font-display text-lg font-medium text-fg-primary md:mt-1">
-                        {c.title}
-                      </h3>
-                      <p className="mt-2 font-sans text-sm leading-relaxed text-fg-secondary">{c.body}</p>
-                    </div>
+                    <h3 className="mt-3 font-display text-lg font-medium text-fg-primary">{c.title}</h3>
+                    <p className="mt-2 font-sans text-sm leading-relaxed text-fg-secondary">{c.body}</p>
                   </div>
                 </Reveal>
-              )
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </div>
