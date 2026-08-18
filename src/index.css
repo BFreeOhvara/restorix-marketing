@@ -91,7 +91,21 @@ body {
    independent blurs. Drift keyframes switched from small percent-of-own-
    box offsets to real vw/vh translation so each blob sweeps a large,
    independent, offset path across the viewport and the three paths
-   cross mid-cycle. */
+   cross mid-cycle.
+
+   Prompt 482 — live review on 481 flagged two remaining problems with
+   the blob shapes themselves (motion/merge mechanism untouched): a
+   visible brighter core (fixed by switching each blob's fill to a flat
+   solid color in AmbientGlow.jsx, no gradient ramp left to fix here),
+   and "circles bouncing around" instead of organic lava-lamp shapes.
+   Fixed with a second, independently-timed border-radius keyframe set
+   per blob (13-21s, well off the 29-41s drift cycles and each other, so
+   morph phase never lines up with drift phase or between blobs) layered
+   onto the same element via the multi-value `animation` shorthand -
+   each blob drifts, morphs, and goo-merges with its neighbors all at
+   once. Base .ambient-blob border-radius changed from a perfect-circle
+   9999px to one of the morph waypoints, so reduced-motion users (no
+   keyframes at all) still see an organic asymmetric shape, not a disc. */
 .ambient-goo-group {
   position: relative;
   filter: url(#ambient-goo) saturate(165%);
@@ -99,22 +113,28 @@ body {
 
 .ambient-blob {
   position: absolute;
-  border-radius: 9999px;
+  border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%;
   pointer-events: none;
-  will-change: transform;
+  will-change: transform, border-radius;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .ambient-blob-a {
-    animation: ambient-drift-a 34s ease-in-out infinite;
+    animation:
+      ambient-drift-a 34s ease-in-out infinite,
+      ambient-morph-a 19s ease-in-out infinite;
   }
   .ambient-blob-b {
-    animation: ambient-drift-b 41s ease-in-out infinite;
-    animation-delay: -12s;
+    animation:
+      ambient-drift-b 41s ease-in-out infinite,
+      ambient-morph-b 15s ease-in-out infinite;
+    animation-delay: -12s, -6s;
   }
   .ambient-blob-c {
-    animation: ambient-drift-c 29s ease-in-out infinite;
-    animation-delay: -20s;
+    animation:
+      ambient-drift-c 29s ease-in-out infinite,
+      ambient-morph-c 23s ease-in-out infinite;
+    animation-delay: -20s, -10s;
   }
 }
 
@@ -137,6 +157,24 @@ body {
   25% { transform: translate(17vw, -19vh) scale(0.9); opacity: 0.44; }
   50% { transform: translate(29vw, -33vh) scale(1.2); opacity: 0.50; }
   75% { transform: translate(9vw, -13vh) scale(0.95); opacity: 0.36; }
+}
+
+@keyframes ambient-morph-a {
+  0%, 100% { border-radius: 42% 58% 65% 35% / 45% 40% 60% 55%; }
+  33% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  66% { border-radius: 35% 65% 55% 45% / 40% 65% 35% 60%; }
+}
+
+@keyframes ambient-morph-b {
+  0%, 100% { border-radius: 55% 45% 40% 60% / 50% 55% 45% 50%; }
+  33% { border-radius: 30% 70% 60% 40% / 65% 35% 65% 35%; }
+  66% { border-radius: 65% 35% 45% 55% / 35% 60% 40% 65%; }
+}
+
+@keyframes ambient-morph-c {
+  0%, 100% { border-radius: 48% 52% 58% 42% / 55% 48% 52% 45%; }
+  33% { border-radius: 65% 35% 40% 60% / 40% 65% 35% 60%; }
+  66% { border-radius: 38% 62% 55% 45% / 60% 40% 65% 35%; }
 }
 
 .eyebrow {

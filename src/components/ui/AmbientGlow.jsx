@@ -39,6 +39,20 @@
 //      (not display:none — Safari drops filters referenced from a
 //      display:none source) so `filter: url(#ambient-goo)` on the
 //      blob-group div can find it.
+//
+// Prompt 482 — live review on 481: the blobs themselves still read as
+// "circles bouncing around" / "a hazy cloud floating on top of the
+// page." Two fixes, both to the blob shapes, not the motion mechanism:
+//   1. Flat fill instead of radial-gradient. A gradient's own brighter
+//      center reads as an internal light source on top of the page;
+//      Brayden wants "everything to feel the same" — softness should
+//      come only from the blur/goo filter softening the *boundary*,
+//      not from a color ramp inside the shape.
+//   2. Continuous border-radius morphing (see .ambient-blob-a/b/c in
+//      index.css) layered on top of the existing drift animation as a
+//      second, independently-timed keyframe set — this is what makes
+//      each blob look like it's actually undulating rather than a
+//      rigid circle that only translates/scales.
 export default function AmbientGlow() {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
@@ -59,15 +73,15 @@ export default function AmbientGlow() {
       <div className="ambient-goo-group h-full w-full">
         <div
           className="ambient-blob ambient-blob-a h-[34rem] w-[34rem] -left-32 top-[6%]"
-          style={{ background: 'radial-gradient(circle, var(--accent-bright), rgba(0,0,0,0) 70%)' }}
+          style={{ background: 'var(--accent-bright)' }}
         />
         <div
           className="ambient-blob ambient-blob-b h-[40rem] w-[40rem] -right-40 top-[40%]"
-          style={{ background: 'radial-gradient(circle, var(--accent), rgba(0,0,0,0) 70%)' }}
+          style={{ background: 'var(--accent)' }}
         />
         <div
           className="ambient-blob ambient-blob-c h-[30rem] w-[30rem] left-[18%] -bottom-24"
-          style={{ background: 'radial-gradient(circle, var(--accent-deep), rgba(0,0,0,0) 70%)' }}
+          style={{ background: 'var(--accent-deep)' }}
         />
       </div>
     </div>
