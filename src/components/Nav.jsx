@@ -8,6 +8,17 @@ const LINKS = [
   { href: '#who', label: "Who It's For" },
 ]
 
+// Prompt 484 — found while restoring the Live Intake card's glass panel:
+// this bar's own scroll-glass background was silently broken the whole
+// time. `bg-base/80` never generated any CSS rule at all, because
+// tailwind.config.js defines `base` (and every other custom color here)
+// as a plain `var(--x)` string rather than the `rgb(var(--x-rgb) /
+// <alpha-value>)` form Tailwind's opacity-modifier syntax needs — the
+// same already-flagged, still-open app-wide bug from Prompt 477
+// (`task_569e9ca8`), now confirmed a second time on a different
+// element. Worked around here the same way 477 did: a literal
+// `bg-[rgba(...)]` arbitrary value, which bypasses the broken
+// CSS-var + opacity-modifier pipeline entirely.
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
 
@@ -20,7 +31,9 @@ export default function Nav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-base/80 backdrop-blur-md border-b border-line' : 'bg-transparent'
+        scrolled
+          ? 'bg-[rgba(229,236,234,0.8)] backdrop-blur-md border-b border-line'
+          : 'bg-transparent'
       }`}
     >
       <nav className="mx-auto flex max-w-shell items-center justify-between px-6 py-5">

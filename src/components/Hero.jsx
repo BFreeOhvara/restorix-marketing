@@ -21,6 +21,19 @@ const TIMELINE = [
 // it first loads up, they slide in"). Reverted to a plain initial/animate
 // reveal, no repeat. The status dot's slow pulse stays — that wasn't the
 // complaint, per the prompt's own explicit default.
+//
+// Prompt 484 — live review flagged that the card's glass/frosted-panel
+// feel was gone, making it read as a flat opaque box against whatever's
+// moving behind it. Checked git history first, per the prompt's own
+// instruction, rather than guessing values — this card has used a fully
+// opaque `bg-elevated` since it was introduced in Prompt 430; a genuine
+// glassmorphism treatment never actually existed here in code before,
+// so there were no prior opacity/blur values to restore. Built one now:
+// a translucent white fill + `backdrop-blur-xl`. Uses a literal
+// `bg-[rgba(255,255,255,0.72)]` rather than `bg-elevated/72` — the
+// latter would silently generate no CSS at all, the same broken
+// Tailwind-opacity-modifier bug this pass also found (and fixed) on
+// Nav.jsx's own scroll-glass background (see Nav.jsx comment).
 
 // Prompt 483 — replaces the page-wide ambient-glow lava-lamp blobs
 // (Prompts 479-482, scrapped outright — Brayden saw it live and didn't
@@ -82,7 +95,7 @@ function LiveCard() {
       initial={{ opacity: 0, scale: 0.92, y: 30 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 0.68, 0.32, 0.99] }}
-      className="relative w-full max-w-sm rounded-card border border-line bg-elevated p-6 shadow-[0_30px_60px_-25px_rgba(15,31,27,0.25)]"
+      className="relative w-full max-w-sm rounded-card border border-line bg-[rgba(255,255,255,0.72)] p-6 shadow-[0_30px_60px_-25px_rgba(15,31,27,0.25)] backdrop-blur-xl"
     >
       <div className="flex items-center justify-between">
         <span className="eyebrow">Live intake</span>
