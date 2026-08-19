@@ -40,10 +40,10 @@ export default function Process() {
 
         <div className="relative mt-16">
           <div className="absolute left-0 right-0 top-6 hidden h-px bg-line lg:block" />
-          <div className="grid gap-8 lg:grid-cols-4 lg:gap-6">
+          <div className="grid items-stretch gap-8 lg:grid-cols-4 lg:gap-6">
             {STEPS.map((s, i) => (
-              <Reveal key={s.n} direction="up" scale delay={i * 0.1}>
-                <div className="flex flex-col">
+              <Reveal key={s.n} direction="up" scale delay={i * 0.1} className="h-full">
+                <div className="flex h-full flex-col">
                   <div className="relative flex items-center gap-3 lg:block">
                     <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-base font-mono text-sm text-accent-deep">
                       {s.n}
