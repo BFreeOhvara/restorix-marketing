@@ -123,10 +123,16 @@ function LiveCard() {
 
 export default function Hero() {
   return (
-    <section id="top" className="relative min-h-screen overflow-hidden pb-20 pt-28 md:pt-36">
+    <section id="top" className="relative min-h-screen overflow-hidden pb-28 pt-28 md:pb-36 md:pt-36">
       <HeroBackground />
       <div className="glow h-[380px] w-[380px] -right-16 top-10" />
       <div className="glow h-[260px] w-[260px] left-[-8%] bottom-0 opacity-15" />
+      {/* Prompt 493 — clean, intentional section boundary instead of a
+          hard cutoff into Leak's own heading; same divider technique
+          Process.jsx already uses (bg-line). Last in DOM within this
+          relative container so it paints above HeroBackground/.glow,
+          which sit at the same default stacking level. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px bg-line" />
 
       <div className="relative mx-auto grid max-w-shell items-center gap-14 px-6 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
