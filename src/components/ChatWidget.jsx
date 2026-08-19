@@ -10,6 +10,11 @@ const GREETING = {
   content: "Hi — I can answer questions about how Restorix works for your facility. What's on your mind?",
 }
 
+// Prompt 492 — proactive greeting bubble, same pattern as Regenix's own
+// chat widget (in spirit, not copy) but with Restorix's own voice/timing.
+const GREETING_BUBBLE_DELAY_MS = 4000
+const GREETING_BUBBLE_TEXT = 'Have a question about how this works for your facility? Happy to walk you through it.'
+
 // Prompt 471 — real chatbot, replaces Prompt 467's visual-only placeholder
 // per Brayden's corrected answer. Backend is the `marketing-chat` Supabase
 // edge function (Anthropic Messages API, rate-limited per IP) — see that
@@ -24,9 +29,32 @@ export default function ChatWidget() {
   const [error, setError] = useState('')
   const scrollRef = useRef(null)
 
+  const [showGreetingBubble, setShowGreetingBubble] = useState(false)
+  const greetingBubbleDismissedRef = useRef(false)
+
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, sending])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!greetingBubbleDismissedRef.current) setShowGreetingBubble(true)
+    }, GREETING_BUBBLE_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [])
+
+  function dismissGreetingBubble() {
+    greetingBubbleDismissedRef.current = true
+    setShowGreetingBubble(false)
+  }
+
+  function toggleChat() {
+    setOpen((o) => {
+      const next = !o
+      if (next) dismissGreetingBubble()
+      return next
+    })
+  }
 
   async function send(e) {
     e.preventDefault()
@@ -122,9 +150,31 @@ export default function ChatWidget() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showGreetingBubble && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+            transition={{ duration: 0.2, ease: [0.22, 0.68, 0.32, 0.99] }}
+            className="relative max-w-[16rem] rounded-2xl border border-line bg-elevated py-3 pl-4 pr-8 shadow-[0_20px_40px_-20px_rgba(15,31,27,0.35)]"
+          >
+            <button
+              type="button"
+              onClick={dismissGreetingBubble}
+              aria-label="Dismiss"
+              className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-fg-faint transition-colors hover:bg-surface hover:text-fg-primary"
+            >
+              <X size={12} />
+            </button>
+            <p className="font-sans text-sm leading-snug text-fg-primary">{GREETING_BUBBLE_TEXT}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggleChat}
         aria-label={open ? 'Close chat' : 'Open chat'}
         aria-expanded={open}
         className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-[0_20px_40px_-15px_rgba(36,70,158,0.6)] transition-transform duration-300 hover:scale-105 hover:bg-accent-deep"
