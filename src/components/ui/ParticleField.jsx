@@ -1,7 +1,19 @@
 import { useEffect, useRef } from 'react'
 
 const DOT_COUNT = 42
-const LINK_DISTANCE = 130
+// Prompt 496 — live review against Regenix side-by-side: dots read as too
+// small/sparse and links too thin to register as a real constellation.
+// LINK_DISTANCE roughly doubled (130 -> 250) rather than bumped
+// incrementally — pair-count-within-radius grows with the *square* of the
+// radius for a fixed random dot distribution, so this alone is what pushes
+// average connections-per-dot from ~2 into Brayden's "clusters up to ~12"
+// ballpark, verified with a real before/after count rather than assumed
+// from the ratio (see commit message). Line opacity/width bumped to match
+// (LINK_OPACITY 0.18->0.28, stroke width 1->1.25) so the denser network
+// reads distinctly, not just as more faint hairlines.
+const LINK_DISTANCE = 250
+const LINK_OPACITY = 0.28
+const LINE_WIDTH = 1.25
 const SPEED = 0.12
 const REPEL_RADIUS = 90
 const REPEL_STRENGTH = 42
@@ -82,7 +94,10 @@ export default function ParticleField({ className = '' }) {
           rx: x, ry: y, // rendered position — home plus eased repulsion
           vx: (Math.random() - 0.5) * SPEED,
           vy: (Math.random() - 0.5) * SPEED,
-          r: Math.random() * 1.4 + 0.6,
+          // Prompt 496 — radius range roughly doubled from the original
+          // 0.6-2.0 (min +83%, max +80%), inside Brayden's requested
+          // 75-100% larger range.
+          r: Math.random() * 2.6 + 1.1,
         }
       })
     }
@@ -127,8 +142,8 @@ export default function ParticleField({ className = '' }) {
             // rgba mirrors --accent (#3a63d6) — canvas fillStyle/strokeStyle
             // can't resolve CSS custom properties, so the value is hardcoded
             // here rather than read from the design token.
-            ctx.strokeStyle = `rgba(58, 99, 214, ${0.18 * (1 - dist / LINK_DISTANCE)})`
-            ctx.lineWidth = 1
+            ctx.strokeStyle = `rgba(58, 99, 214, ${LINK_OPACITY * (1 - dist / LINK_DISTANCE)})`
+            ctx.lineWidth = LINE_WIDTH
             ctx.beginPath()
             ctx.moveTo(a.rx, a.ry)
             ctx.lineTo(b.rx, b.ry)

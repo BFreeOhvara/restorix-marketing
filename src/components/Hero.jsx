@@ -44,16 +44,30 @@ const TIMELINE = [
 // and its own two upgrades (mouse-repulsion, correct hero-only scope).
 // Full history of every superseded attempt is in git and
 // [[Restorix Memories]], not repeated as dead code here.
+// Prompt 496 — live review against Regenix side-by-side flagged the flat
+// wash as wrong: Regenix's own background stays genuinely light/white
+// everywhere, with only a soft, localized hue as an accent — not a
+// wholesale color layer over the whole hero the way Prompt 490's flat
+// `rgba` tint read. Replaced with a single soft radial glow, sized and
+// positioned to stay well clear of the hero's actual edges/corners so
+// they read at (or essentially at) the plain base background color —
+// hand-verified via real pixel sampling at both the glow's center and a
+// far corner before shipping (see commit message), not just picking an
+// opacity that "should" fade out in theory. This is the one case this
+// session where a radial-gradient's own falloff-from-center behavior is
+// exactly the desired effect rather than the Prompt 480 mistake (that
+// bug was a radial-gradient used for an effect meant to be visible
+// everywhere; here the ask is specifically "soft and localized").
 function HeroBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      {/* Flat, uniform tint rather than a radial-gradient — Prompt 480's
-          own lesson: a radial-gradient only reaches full color at its
-          exact center, which reads as invisible at a glance against this
-          site's light background. A flat wash has one alpha-blend value
-          everywhere, hand-verified before shipping (see commit message)
-          rather than assumed adequate from the class name alone. */}
-      <div className="absolute inset-0" style={{ background: 'rgba(58, 99, 214, 0.18)' }} />
+      <div
+        className="absolute left-1/2 top-1/2 h-[120%] w-[65%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          background: 'radial-gradient(circle, rgba(58,99,214,0.4), rgba(58,99,214,0) 65%)',
+          filter: 'blur(40px)',
+        }}
+      />
       <ParticleField className="absolute inset-0 h-full w-full" />
     </div>
   )
@@ -109,7 +123,7 @@ function LiveCard() {
 
 export default function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden pb-20 pt-28 md:pt-36">
+    <section id="top" className="relative min-h-screen overflow-hidden pb-20 pt-28 md:pt-36">
       <HeroBackground />
       <div className="glow h-[380px] w-[380px] -right-16 top-10" />
       <div className="glow h-[260px] w-[260px] left-[-8%] bottom-0 opacity-15" />
