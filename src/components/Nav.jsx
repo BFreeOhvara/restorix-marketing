@@ -37,8 +37,11 @@ export default function Nav() {
       }`}
     >
       <nav className="mx-auto flex max-w-shell items-center justify-between px-6 py-5">
-        <a href="#top" className="font-display text-lg font-semibold tracking-tight text-fg-primary">
-          Restorix
+        <a href="#top" className="flex items-center gap-2.5">
+          <img src="/logo-icon.png" alt="" className="h-8 w-auto" />
+          <span className="font-display text-lg font-semibold tracking-tight text-fg-primary">
+            Restorix
+          </span>
         </a>
         <div className="hidden items-center gap-8 md:flex">
           {LINKS.map((l) => (
