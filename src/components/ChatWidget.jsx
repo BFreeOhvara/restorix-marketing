@@ -168,6 +168,19 @@ export default function ChatWidget() {
               <X size={12} />
             </button>
             <p className="font-sans text-sm leading-snug text-fg-primary">{GREETING_BUBBLE_TEXT}</p>
+            {/* Prompt 497 — a small connector so the bubble reads as
+                attached to the launcher beneath it rather than a floating,
+                unrelated box (Regenix's own bubble has the same visual
+                link). A rotated square showing only its bottom/right
+                border+fill, half-overlapped into the bubble's own bottom
+                edge so the seam disappears; horizontally centered under
+                the 56px launcher button below (both share the container's
+                right-aligned edge, so right-6 lands the diamond's own
+                center within a pixel or two of the launcher's center). */}
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-[5px] right-6 h-2.5 w-2.5 rotate-45 border-b border-r border-line bg-elevated"
+            />
           </motion.div>
         )}
       </AnimatePresence>

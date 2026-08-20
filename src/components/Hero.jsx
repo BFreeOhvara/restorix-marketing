@@ -58,11 +58,24 @@ const TIMELINE = [
 // exactly the desired effect rather than the Prompt 480 mistake (that
 // bug was a radial-gradient used for an effect meant to be visible
 // everywhere; here the ask is specifically "soft and localized").
+// Prompt 497 — live side-by-side against regenix.io showed our glow reading
+// dead-center while Regenix's own equivalent (read directly from its
+// computed background-image: `radial-gradient(80% 60% at 78% 30%, ...)`)
+// sits well right-of-center. Shifted our own box's center from 50% to 74%
+// horizontal — not copied 1:1 to Regenix's 78%, since farthest-corner
+// circle sizing means the fade radius here is fixed by the box's own w/h
+// (unchanged, per this prompt's own "keep the fade radius intact"
+// instruction) rather than recomputed per position the way Regenix's
+// `at X% Y%` gradient-position syntax does; 74% keeps the nearest hero
+// corner outside the fade-to-transparent radius with real margin
+// (re-verified live, see commit message), where 78% would have cut that
+// margin close to 1:1. Vertical center left untouched — the live-review
+// complaint was specifically "left-of-center", not vertical placement.
 function HeroBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       <div
-        className="absolute left-1/2 top-1/2 h-[120%] w-[65%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="absolute left-[74%] top-1/2 h-[120%] w-[65%] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
           background: 'radial-gradient(circle, rgba(58,99,214,0.4), rgba(58,99,214,0) 65%)',
           filter: 'blur(40px)',
@@ -114,7 +127,14 @@ function LiveCard() {
           </motion.div>
         ))}
       </div>
-      <div className="mt-5 rounded-full bg-base px-4 py-2 text-center font-mono text-[11px] uppercase tracking-widest text-accent-deep">
+      {/* Prompt 497 — the pill's own text color (accent-deep) is
+          unchanged per the prompt's explicit instruction; only the box's
+          background prominence increases. bg-base read almost identical
+          to the glass card's own translucent-white-over-page-base fill,
+          so the pill barely registered as a distinct element. bg-muted
+          (--bg-muted, a genuinely darker/more saturated gray token) plus
+          a hairline border gives it real definition against the card. */}
+      <div className="mt-5 rounded-full border border-line bg-muted px-4 py-2 text-center font-mono text-[11px] uppercase tracking-widest text-accent-deep">
         No inquiry left waiting
       </div>
     </motion.div>
